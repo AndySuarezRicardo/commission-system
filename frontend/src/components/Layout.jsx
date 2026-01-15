@@ -44,7 +44,7 @@ export default function Layout({ children }) {
         />
         <div className={`fixed inset-y-0 left-0 flex w-64 flex-col bg-white transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex h-16 items-center justify-between px-4 border-b">
-            <span className="text-xl font-bold text-primary-600">Comisiones</span>
+            <span className="text-xl font-bold text-primary-600">ManageYourCom</span>
             <button onClick={() => setSidebarOpen(false)} className="text-gray-500">
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -73,7 +73,7 @@ export default function Layout({ children }) {
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex flex-col flex-grow bg-white border-r">
           <div className="flex h-16 items-center px-4 border-b">
-            <span className="text-xl font-bold text-primary-600">Sistema Comisiones</span>
+            <span className="text-xl font-bold text-primary-600">ManageYourCom</span>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
             {navigation.map((item) => (
@@ -115,7 +115,7 @@ export default function Layout({ children }) {
               <div className="flex items-center">
                 <span className="text-sm text-gray-700">{user?.email}</span>
                 <span className="ml-2 px-2 py-1 text-xs font-medium bg-primary-100 text-primary-800 rounded">
-                  {user?.role === 'admin' ? 'Admin' : 'Agencia'}
+                  {user?.role === 'admin' ? 'Superadmin' : 'Agencia'}
                 </span>
               </div>
               <button
