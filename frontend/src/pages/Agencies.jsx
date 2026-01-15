@@ -16,7 +16,7 @@ export default function Agencies() {
 
   const fetchAgencies = async () => {
     try {
-      const response = await axios.get(\`\${API_URL}/agencies/tree\`);
+      const response = await axios.get(`${API_URL}/agencies/tree`);
       setAgencies(buildTree(response.data));
     } catch (error) {
       toast.error('Error al cargar agencias');
@@ -53,8 +53,8 @@ export default function Agencies() {
   const TreeNode = ({ node, level = 0 }) => (
     <div>
       <div 
-        className={\`flex items-center py-3 px-4 hover:bg-gray-50 cursor-pointer\`}
-        style={{ paddingLeft: \`\${level * 2 + 1}rem\` }}
+        className={`flex items-center py-3 px-4 hover:bg-gray-50 cursor-pointer`}
+        style={{ paddingLeft: `${level * 2 + 1}rem` }}
         onClick={() => node.children.length > 0 && toggleExpand(node.id)}
       >
         {node.children.length > 0 && (
