@@ -14,8 +14,8 @@ async function seedDatabase() {
     const adminPassword = await bcrypt.hash(process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123456', 10);
     await client.query(
       `INSERT INTO users (role, email, password_hash, two_factor_enabled) 
-       VALUES ('admin', $1, $2, true)`,
-      [process.env.DEFAULT_ADMIN_EMAIL || 'admin@commissionsystem.com', adminPassword]
+       VALUES ('admin', $1, $2, false)`,
+      [process.env.DEFAULT_ADMIN_EMAIL || 'admin@manageyourcom.com', adminPassword]
     );
 
     // Create sample agencies (multilevel structure)
@@ -74,7 +74,7 @@ async function seedDatabase() {
     console.log('✅ Database seeded successfully!');
     console.log('');
     console.log('📋 Default credentials:');
-    console.log('   Admin: admin@commissionsystem.com / Admin@123456');
+    console.log('   Admin: admin@manageyourcom.com / Admin@123456');
     console.log('   Agency: agencia_a@example.com / Agency@123');
     console.log('');
   } catch (error) {
