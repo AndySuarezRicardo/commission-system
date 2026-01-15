@@ -1,7 +1,7 @@
 {
-  "name": "commission-system-backend",
+  "name": "manageyourcom-backend",
   "version": "1.0.0",
-  "description": "Multilevel Agency Commission Management System - Backend API",
+  "description": "ManageYourCom - Multilevel Agency Commission Management System - Backend API",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -10,12 +10,7 @@
     "seed": "node src/database/seed.js",
     "test": "jest"
   },
-  "keywords": [
-    "commission",
-    "agency",
-    "multilevel",
-    "api"
-  ],
+  "keywords": ["commission", "agency", "multilevel", "api", "manageyourcom"],
   "author": "",
   "license": "MIT",
   "dependencies": {
