@@ -5,14 +5,14 @@ const pool = require('../config/database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { createAgencyValidation } = require('../middleware/validation');
 
-// Get agency tree (multilevel hierarchy)
+// Get agency tree (multinivel hierarchy)
 router.get('/tree', authenticateToken, async (req, res, next) => {
   try {
     let query;
     let params = [];
 
     if (req.user.role === 'admin') {
-      // Admin sees all agencies
+      // Admin sees ALL agencies
       query = `
         WITH RECURSIVE agency_tree AS (
           SELECT id, name, email, phone, parent_agency_id, 0 as level
@@ -25,7 +25,7 @@ router.get('/tree', authenticateToken, async (req, res, next) => {
         SELECT * FROM agency_tree ORDER BY level, name
       `;
     } else {
-      // Agency sees only their tree
+      // Agency sees only THEIR tree (itself + children)
       query = `
         WITH RECURSIVE agency_tree AS (
           SELECT id, name, email, phone, parent_agency_id, 0 as level
@@ -66,7 +66,7 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
       return res.status(404).json({ error: 'Agency not found' });
     }
 
-    // Check access
+    // Check access: admin can see all, agencies can see their tree
     if (req.user.role !== 'admin' && req.user.agency_id !== agencyId) {
       const accessCheck = await pool.query(
         `WITH RECURSIVE agency_tree AS (
@@ -90,32 +90,52 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
   }
 });
 
-// Create new agency
+// Create new agency (CRITICAL: permite que agencias creen subagencias)
 router.post('/', authenticateToken, requireRole('admin', 'agency'), createAgencyValidation, async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    const { name, email, phone, parent_agency_id, user_password } = req.body;
+    const { name, email, phone, parent_agency_id } = req.body;
 
-    // Validate parent agency
+    // Determinar el parent_id correcto
     let parentId = parent_agency_id;
+
     if (req.user.role === 'agency') {
+      // Las agencias SIEMPRE crean hijas debajo de ellas mismas
       parentId = req.user.agency_id;
+      console.log(`Agencia ${req.user.agency_id} creando subagencia`);
+    } else if (req.user.role === 'admin') {
+      // Admin puede especificar el parent o crear raíz (null)
+      parentId = parent_agency_id || null;
+      console.log(`Admin creando agencia con parent ${parentId}`);
     }
 
-    // Create agency
+    // Validar que el parent existe (si no es null)
+    if (parentId !== null) {
+      const parentCheck = await client.query(
+        'SELECT id FROM agencies WHERE id = $1',
+        [parentId]
+      );
+      if (parentCheck.rows.length === 0) {
+        return res.status(400).json({ error: 'Parent agency not found' });
+      }
+    }
+
+    // Crear la agencia
     const agencyResult = await client.query(
       'INSERT INTO agencies (name, email, phone, parent_agency_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [name, email, phone, parentId]
     );
 
     const agency = agencyResult.rows[0];
+    console.log(`Agencia creada: ID ${agency.id}, parent ${parentId}`);
 
-    // Create user for the agency
-    const password = user_password || 'Agency@123';
-    const passwordHash = await bcrypt.hash(password, 10);
+    // Generar contraseña automática (8 caracteres aleatorios)
+    const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase();
+    const passwordHash = await bcrypt.hash(generatedPassword, 10);
 
+    // Crear usuario para la agencia
     await client.query(
       'INSERT INTO users (agency_id, role, email, password_hash) VALUES ($1, $2, $3, $4)',
       [agency.id, 'agency', email, passwordHash]
@@ -123,19 +143,23 @@ router.post('/', authenticateToken, requireRole('admin', 'agency'), createAgency
 
     await client.query('COMMIT');
 
+    console.log(`Usuario creado para agencia ${agency.id} con password ${generatedPassword}`);
+
     res.status(201).json({
       ...agency,
-      default_password: !user_password ? password : undefined
+      generated_password: generatedPassword,
+      message: 'Agencia creada exitosamente. IMPORTANTE: Guarda esta contraseña, no se mostrará nuevamente.'
     });
   } catch (error) {
     await client.query('ROLLBACK');
+    console.error('Error creating agency:', error);
     next(error);
   } finally {
     client.release();
   }
 });
 
-// Update agency
+// Update agency (solo admin)
 router.put('/:id', authenticateToken, requireRole('admin'), async (req, res, next) => {
   try {
     const agencyId = parseInt(req.params.id);
@@ -156,10 +180,22 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res, nex
   }
 });
 
-// Delete agency
+// Delete agency (solo admin)
 router.delete('/:id', authenticateToken, requireRole('admin'), async (req, res, next) => {
   try {
     const agencyId = parseInt(req.params.id);
+
+    // Verificar si tiene subagencias
+    const childrenCheck = await pool.query(
+      'SELECT COUNT(*) as count FROM agencies WHERE parent_agency_id = $1',
+      [agencyId]
+    );
+
+    if (parseInt(childrenCheck.rows[0].count) > 0) {
+      return res.status(400).json({ 
+        error: 'No se puede eliminar esta agencia porque tiene subagencias' 
+      });
+    }
 
     await pool.query('DELETE FROM agencies WHERE id = $1', [agencyId]);
 
