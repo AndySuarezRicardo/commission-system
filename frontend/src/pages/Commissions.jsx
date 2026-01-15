@@ -16,8 +16,8 @@ export default function Commissions() {
   const fetchData = async () => {
     try {
       const [commissionsRes, statsRes] = await Promise.all([
-        axios.get(\`\${API_URL}/commissions\`),
-        axios.get(\`\${API_URL}/commissions/stats\`)
+        axios.get(`${API_URL}/commissions`),
+        axios.get(`${API_URL}/commissions/stats`)
       ]);
       setCommissions(commissionsRes.data);
       setStats(statsRes.data);
@@ -40,15 +40,15 @@ export default function Commissions() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm text-gray-600">Total Comisiones</p>
-          <p className="text-3xl font-bold text-gray-900">\${stats?.total_amount || 0}</p>
+          <p className="text-3xl font-bold text-gray-900">${stats?.total_amount || 0}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm text-gray-600">Pendientes</p>
-          <p className="text-3xl font-bold text-yellow-600">\${stats?.pending_amount || 0}</p>
+          <p className="text-3xl font-bold text-yellow-600">${stats?.pending_amount || 0}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm text-gray-600">Pagadas</p>
-          <p className="text-3xl font-bold text-green-600">\${stats?.paid_amount || 0}</p>
+          <p className="text-3xl font-bold text-green-600">${stats?.paid_amount || 0}</p>
         </div>
       </div>
 
@@ -67,10 +67,10 @@ export default function Commissions() {
             {commissions.map((commission) => (
               <tr key={commission.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{commission.client_name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">\${commission.amount}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${commission.amount}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{commission.month}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={\`px-2 py-1 text-xs font-medium rounded-full \${statusColors[commission.payment_status]}\`}>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[commission.payment_status]}`}>
                     {commission.payment_status}
                   </span>
                 </td>
