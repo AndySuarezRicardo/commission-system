@@ -23,11 +23,11 @@ export default function Login() {
         setRequires2FA(true);
         toast.success('Ingresa tu código 2FA');
       } else if (result.success) {
-        toast.success('¡Bienvenido!');
+        toast.success('¡Bienvenido a ManageYourCom!');
         navigate('/dashboard');
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al iniciar sesión');
+      toast.error(error.response?.data?.error || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }
@@ -38,10 +38,10 @@ export default function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
-            Sistema de Comisiones
+            ManageYourCom
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Gestión de Agencias Aliadas
+            Sistema de Gestión de Comisiones Multinivel
           </p>
         </div>
         <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-lg" onSubmit={handleSubmit}>
@@ -107,10 +107,27 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="text-sm text-center text-gray-600">
-            <p>Credenciales por defecto:</p>
-            <p className="font-mono text-xs mt-1">Admin: admin@commissionsystem.com / Admin@123456</p>
-            <p className="font-mono text-xs">Agencia: agencia_a@example.com / Agency@123</p>
+          <div className="bg-gray-50 rounded p-4 space-y-2">
+            <p className="text-xs font-semibold text-gray-700 text-center mb-2">
+              Credenciales por defecto:
+            </p>
+            <div className="space-y-1">
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Superadmin:</span> admin@manageyourcom.com
+              </p>
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Password:</span> Admin@123456
+              </p>
+            </div>
+            <hr className="my-2" />
+            <div className="space-y-1">
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Agencia:</span> agencia_a@example.com
+              </p>
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Password:</span> Agency@123
+              </p>
+            </div>
           </div>
         </form>
       </div>
