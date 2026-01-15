@@ -18,7 +18,7 @@ export default function Clients() {
 
   const fetchClients = async () => {
     try {
-      const response = await axios.get(\`\${API_URL}/clients\`, { params: { search } });
+      const response = await axios.get(`${API_URL}/clients`, { params: { search } });
       setClients(response.data);
     } catch (error) {
       toast.error('Error al cargar clientes');
@@ -30,7 +30,7 @@ export default function Clients() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(\`\${API_URL}/clients\`, formData);
+      await axios.post(`${API_URL}/clients`, formData);
       toast.success('Cliente registrado exitosamente');
       setShowModal(false);
       setFormData({ name: '', email: '', phone: '', notes: '' });
@@ -90,7 +90,7 @@ export default function Clients() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.phone}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={\`px-2 py-1 text-xs font-medium rounded-full \${statusColors[client.status]}\`}>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[client.status]}`}>
                     {client.status}
                   </span>
                 </td>
