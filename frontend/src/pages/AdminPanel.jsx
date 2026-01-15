@@ -16,8 +16,8 @@ export default function AdminPanel() {
   const fetchData = async () => {
     try {
       const [statsRes, clientsRes] = await Promise.all([
-        axios.get(\`\${API_URL}/admin/stats\`),
-        axios.get(\`\${API_URL}/clients?status=pending\`)
+        axios.get(`${API_URL}/admin/stats`),
+        axios.get(`${API_URL}/clients?status=pending`)
       ]);
       setStats(statsRes.data);
       setClients(clientsRes.data);
@@ -30,7 +30,7 @@ export default function AdminPanel() {
 
   const updateClientStatus = async (clientId, status) => {
     try {
-      await axios.patch(\`\${API_URL}/clients/\${clientId}/status\`, { status });
+      await axios.patch(`${API_URL}/clients/${clientId}/status`, { status });
       toast.success('Estado actualizado');
       fetchData();
     } catch (error) {
@@ -53,7 +53,7 @@ export default function AdminPanel() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm text-gray-600">Comisiones Totales</p>
-          <p className="text-3xl font-bold text-gray-900">\${stats?.total_commissions_amount || 0}</p>
+          <p className="text-3xl font-bold text-gray-900">${stats?.total_commissions_amount || 0}</p>
         </div>
       </div>
 
