@@ -10,15 +10,17 @@ async function seedDatabase() {
     // Clear existing data
     await client.query('TRUNCATE agencies, users, referred_clients, commissions RESTART IDENTITY CASCADE');
 
-    // Create admin user
-    const adminPassword = await bcrypt.hash(process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123456', 10);
+    // IMPORTANTE: Crear usuario SUPERADMIN (NO vinculado a ninguna agencia)
+    const adminPassword = await bcrypt.hash('Admin@123456', 10);
     await client.query(
-      `INSERT INTO users (role, email, password_hash, two_factor_enabled) 
-       VALUES ('admin', $1, $2, false)`,
-      [process.env.DEFAULT_ADMIN_EMAIL || 'admin@manageyourcom.com', adminPassword]
+      `INSERT INTO users (agency_id, role, email, password_hash, two_factor_enabled) 
+       VALUES (NULL, 'admin', $1, $2, false)`,
+      ['admin@manageyourcom.com', adminPassword]
     );
 
-    // Create sample agencies (multilevel structure)
+    console.log('   ✅ Superadmin creado: admin@manageyourcom.com / Admin@123456');
+
+    // Crear agencias de ejemplo (estructura multinivel)
     const agencies = [
       { name: 'Agencia Principal A', email: 'agencia_a@example.com', phone: '+1234567890', parent: null },
       { name: 'Agencia Hija A1', email: 'agencia_a1@example.com', phone: '+1234567891', parent: 1 },
@@ -34,7 +36,9 @@ async function seedDatabase() {
       );
     }
 
-    // Create users for agencies
+    console.log('   ✅ 5 agencias creadas (estructura multinivel)');
+
+    // Crear usuarios para TODAS las agencias con contraseña conocida
     const agencyPassword = await bcrypt.hash('Agency@123', 10);
     for (let i = 1; i <= 5; i++) {
       await client.query(
@@ -43,7 +47,9 @@ async function seedDatabase() {
       );
     }
 
-    // Create sample clients
+    console.log('   ✅ 5 usuarios de agencia creados con contraseña: Agency@123');
+
+    // Crear clientes de ejemplo
     const clients = [
       { name: 'Juan Pérez', email: 'juan@example.com', phone: '+1111111111', status: 'enrolled', agency: 1 },
       { name: 'María García', email: 'maria@example.com', phone: '+1111111112', status: 'enrolled', agency: 2 },
@@ -59,7 +65,7 @@ async function seedDatabase() {
          client.status === 'enrolled' ? new Date() : null]
       );
 
-      // Create commissions for enrolled clients
+      // Crear comisiones para clientes inscritos
       if (client.status === 'enrolled') {
         const currentMonth = new Date().toISOString().substring(0, 7);
         await client.query(
@@ -70,12 +76,20 @@ async function seedDatabase() {
       }
     }
 
+    console.log('   ✅ 4 clientes y comisiones creados');
+
     await client.query('COMMIT');
-    console.log('✅ Database seeded successfully!');
-    console.log('');
-    console.log('📋 Default credentials:');
-    console.log('   Admin: admin@manageyourcom.com / Admin@123456');
-    console.log('   Agency: agencia_a@example.com / Agency@123');
+    console.log('\n' + '='.repeat(70));
+    console.log('✅ BASE DE DATOS INICIALIZADA CORRECTAMENTE');
+    console.log('='.repeat(70));
+    console.log('\n📋 CREDENCIALES DE ACCESO:\n');
+    console.log('👑 SUPERADMIN (ve y administra TODO):');
+    console.log('   Email:    admin@manageyourcom.com');
+    console.log('   Password: Admin@123456');
+    console.log('\n🏢 AGENCIAS (ejemplo para probar):');
+    console.log('   Email:    agencia_a@example.com');
+    console.log('   Password: Agency@123');
+    console.log('\n' + '='.repeat(70));
     console.log('');
   } catch (error) {
     await client.query('ROLLBACK');
